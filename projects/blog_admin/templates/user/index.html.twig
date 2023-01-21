@@ -2,6 +2,11 @@
 
 {% block title %}Users | {% endblock %}
 
+{% block head_css %}
+    <link href="{{ asset('/assets/vendor/datatables.net-bs5/css/dataTables.bootstrap5.min.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('/assets/vendor/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css') }}" rel="stylesheet" type="text/css" />
+{% endblock %}
+
 {% block body %}
 <div class="container-fluid">
     <div class="row">
@@ -12,12 +17,40 @@
                         <li class="breadcrumb-item active"><a href="{{ path('users_list') }}">Users</a></li>
                     </ol>
                 </div>
-                <h4 class="page-title">Users</h4>
+                <div class="page-title row">
+                    <div class="col-auto mt-3"><h4>Users</h4></div>
+                    <div class="col-auto m-0"><a href="#" class="btn btn-danger"><i class="uil-plus"></i> Add New</a></div>
+                </div>
             </div>
         </div>
     </div>
     <div class="row">
-
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <table id="table" class="table w-100 nowrap">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Firstname</th>
+                            <th>Lastname</th>
+                            <th>Login</th>
+                            <th>Email</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+{% endblock %}
+
+{% block body_js %}
+    <script src="{{ asset('/assets/vendor/datatables.net/js/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('/assets/vendor/datatables.net-bs5/js/dataTables.bootstrap5.min.js') }}"></script>
+    <script src="{{ asset('/assets/vendor/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
+    <script src="{{ asset('/assets/vendor/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js') }}"></script>
+    <script src="{{ asset('/assets/js/user/index.js') }}"></script>
 {% endblock %}
