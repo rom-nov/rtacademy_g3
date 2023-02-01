@@ -16,9 +16,6 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class ApiUserController extends AbstractController
 {
-    protected const DEFAULT_LIST_ORDERBY_FIELD = 'id';
-    protected const DEFAULT_LIST_ORDERBY_DIRECTION = 'asc';
-
     private ApiUserRepository $apiUserRepository;
 
     public function __construct( ApiUserRepository $apiUserRepository )

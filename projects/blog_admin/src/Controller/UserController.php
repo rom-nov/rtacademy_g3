@@ -11,8 +11,6 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class UserController extends AbstractController
 {
-	protected const DEFAULT_LIST_ORDERBY_FIELD = 'id';
-	protected const DEFAULT_LIST_ORDERBY_DIRECTION = 'asc';
 	private UserRepository $userRepository;
 	public function __construct( UserRepository $userRepository )
 	{
@@ -83,5 +81,23 @@ class UserController extends AbstractController
 				$orderby,
 				$direction,
 			];
+	}
+
+	#[Route( '/user/view/{id<[0-9]+>}', name: 'users_view', methods: [ 'GET' ] )]
+	public function view( int $id ): Response
+	{
+		$user = $this->userRepository->findOneBy( [ 'id' => $id ] );
+
+		if( !$user )
+		{
+			throw $this->createNotFoundException( 'User #' . $id . ' not found' );
+		}
+
+		return $this->render(
+			'user/view.html.twig',
+			[
+				'user' => $user,
+			]
+		);
 	}
 }
