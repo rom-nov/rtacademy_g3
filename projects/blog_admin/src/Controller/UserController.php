@@ -2,12 +2,16 @@
 
 namespace App\Controller;
 
+use App\Entity\User;
+use App\Form\UserAddType;
 use App\Repository\UserRepository;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\InputBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class UserController extends AbstractController
 {
@@ -97,6 +101,39 @@ class UserController extends AbstractController
 			'user/view.html.twig',
 			[
 				'user' => $user,
+			]
+		);
+	}
+
+	#[Route( '/user/add', name: 'users_add', methods: [ 'GET', 'POST' ] )]
+	public function add( Request $request, ManagerRegistry $doctrine, UserPasswordHasherInterface $passwordHasher ): Response
+	{
+		$user = new User();
+		$form = $this->createForm( UserAddType::class, $user );
+		$form->handleRequest( $request );
+
+		if( $form->isSubmitted() && $form->isValid() )
+		{
+			$user = $form->getData();
+			$plaintextPassword = $user->getPassword();
+			$hashedPassword = $passwordHasher->hashPassword(
+				$user,
+				$plaintextPassword
+			);
+			$user->setPassword($hashedPassword);
+			$entityManager = $doctrine->getManager();
+			$entityManager->persist( $user );
+			$entityManager->flush();
+
+			$this->addFlash( 'success', 'User has been successfully added.' );
+
+			return $this->redirectToRoute( 'users_list' );
+		}
+
+		return $this->render(
+			'user/add.html.twig',
+			[
+				'form' => $form->createView(),
 			]
 		);
 	}
