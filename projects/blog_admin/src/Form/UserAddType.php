@@ -8,8 +8,10 @@
 	use Symfony\Component\Form\Extension\Core\Type\TextType;
 	use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 	use Symfony\Component\Form\Extension\Core\Type\EmailType;
+	use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 	use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 	use Symfony\Component\OptionsResolver\OptionsResolver;
+	use Symfony\Component\Form\CallbackTransformer;
 
 	class UserAddType extends AbstractType
 	{
@@ -96,7 +98,32 @@
 							],
 					]
 				)
+				->add(
+					'roles',
+					ChoiceType::class,
+					[
+						'choices'  =>
+						[
+							'Admin' => 'ROLE_ADMIN',
+							'User' => 'ROLE_USER',
+						],
+						'label' => 'Roles',
+						'help' => 'User role'
+					],
+				)
 				->add( 'save', SubmitType::class );
+
+			$builder
+				->get( 'roles' )
+				->addModelTransformer( new CallbackTransformer(
+					function ( $rolesArray ) {
+						// transform the array to a string
+						return implode( ', ', $rolesArray );
+					},
+					function ( $rolesString ) {
+						// transform the string back to an array
+						return explode( ', ', $rolesString );
+					} ) );
 		}
 
 		public function configureOptions( OptionsResolver $resolver ): void
