@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Form\UserAddType;
+use App\Form\UserEditType;
 use App\Repository\UserRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -161,6 +162,40 @@ class UserController extends AbstractController
 		return $this->json(
 			[
 				'success' => 'User #' . $id . ' has been successfully deleted.'
+			]
+		);
+	}
+
+	#[Route( '/user/edit/{id<[0-9]+>}', name: 'users_edit', methods: [ 'GET', 'POST' ] )]
+	public function edit( int $id, Request $request, ManagerRegistry $doctrine ): Response
+	{
+		$user = $this->userRepository->findOneBy( [ 'id' => $id ] );
+
+		if( !$user )
+		{
+			throw $this->createNotFoundException( 'User #' . $id . ' not found' );
+		}
+
+		$form = $this->createForm( UserEditType::class, $user );
+		$form->handleRequest( $request );
+
+		if( $form->isSubmitted() && $form->isValid() )
+		{
+			$apiUser = $form->getData();
+			$entityManager = $doctrine->getManager();
+			$entityManager->persist( $apiUser );
+			$entityManager->flush();
+
+			$this->addFlash( 'success', 'User #' . $id . ' has been successfully updated.' );
+
+			return $this->redirectToRoute( 'users_list' );
+		}
+
+		return $this->render(
+			'user/edit.html.twig',
+			[
+				'form'    => $form->createView(),
+				'user' => $user,
 			]
 		);
 	}
