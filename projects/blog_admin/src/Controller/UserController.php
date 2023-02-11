@@ -122,6 +122,7 @@ class UserController extends AbstractController
 				$plaintextPassword
 			);
 			$user->setPassword($hashedPassword);
+			//record in BD
 			$entityManager = $doctrine->getManager();
 			$entityManager->persist( $user );
 			$entityManager->flush();
@@ -135,6 +136,31 @@ class UserController extends AbstractController
 			'user/add.html.twig',
 			[
 				'form' => $form->createView(),
+			]
+		);
+	}
+
+	#[Route( '/user/delete/{id<[0-9]+>}', name: 'users_delete', methods: [ 'DELETE' ] )]
+	public function delete( int $id, ManagerRegistry $doctrine ): Response
+	{
+		$user = $this->userRepository->findOneBy( [ 'id' => $id ] );
+
+		if( !$user )
+		{
+			return $this->json(
+				[
+					'error' => 'User #' . $id . ' not found.'
+				]
+			);
+		}
+
+		$entityManager = $doctrine->getManager();
+		$entityManager->remove( $user );
+		$entityManager->flush();
+
+		return $this->json(
+			[
+				'success' => 'User #' . $id . ' has been successfully deleted.'
 			]
 		);
 	}
