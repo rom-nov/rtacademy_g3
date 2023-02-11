@@ -51,18 +51,16 @@ class UserController extends AbstractController
 
 		return $this->json(
 			[
-				'data'            =>
-					array_map(
-						fn( $user ) =>
-						[
-							'id' => $user->getId(),
-							'firstname' => $user->getFirstname(),
-							'lastname' => $user->getLastname(),
-							'login' => $user->getLogin(),
-							'email' => $user->getEmail(),
-						],
-						$users
-					),
+				'data' => array_map( fn( $user ) =>
+					[
+						'id' => $user->getId(),
+						'firstname' => $user->getFirstname(),
+						'lastname' => $user->getLastname(),
+						'login' => $user->getLogin(),
+						'email' => $user->getEmail(),
+					],
+					$users
+				),
 				'recordsTotal'    => $usersTotal,
 				'recordsFiltered' => $usersTotal,
 				'draw'            => $draw,
@@ -98,10 +96,13 @@ class UserController extends AbstractController
 			throw $this->createNotFoundException( 'User #' . $id . ' not found' );
 		}
 
+		$roles = implode( ',', $user->getRoles() );
+
 		return $this->render(
 			'user/view.html.twig',
 			[
 				'user' => $user,
+				'roles' => $roles
 			]
 		);
 	}
@@ -116,7 +117,7 @@ class UserController extends AbstractController
 		if( $form->isSubmitted() && $form->isValid() )
 		{
 			$user = $form->getData();
-			// password
+			//password
 			$plaintextPassword = $user->getPassword();
 			$hashedPassword = $passwordHasher->hashPassword(
 				$user,
@@ -194,7 +195,7 @@ class UserController extends AbstractController
 		return $this->render(
 			'user/edit.html.twig',
 			[
-				'form'    => $form->createView(),
+				'form' => $form->createView(),
 				'user' => $user,
 			]
 		);
